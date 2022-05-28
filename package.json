@@ -1,0 +1,29 @@
+{
+  "name": "week2-team",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "start:dev": "NODE_ENV=dev node ./bin/www",
+    "start:pro": "NODE_ENV=production node ./bin/www",
+    "dev": "nodemon ./bin/www"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
+    "debug": "~2.6.9",
+    "dotenv": "^16.0.0",
+    "ejs": "~2.6.1",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "mongoose": "^6.3.0",
+    "morgan": "~1.9.1",
+    "multer": "^1.4.4",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^8.5.1",
+    "validator": "^13.7.0"
+  }
+}
