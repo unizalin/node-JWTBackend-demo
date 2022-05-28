@@ -51,8 +51,7 @@ exports.signIn = async(req,res,next)=>{
   if(!isUserAuth){
     return next(appError(400,"密碼不正確",next))
   }
-  
-  generateSendJWT(res,201,user);
+  generateSendJWT(user,201,res);
 }
 
 
