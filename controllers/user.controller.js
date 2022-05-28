@@ -67,8 +67,7 @@ exports.updatePassword = async (req,res,next)=>{
   }
   const newPassword = await bcrypt.hash(password,12)
   const user = await User.findByIdAndUpdate(req.user.id,{password:newPassword})
-  generateSendJWT(res,201,user);
-
+  generateSendJWT(user,201,res);
 }
 
 exports.updateProfile = async(req,res,next)=>{
