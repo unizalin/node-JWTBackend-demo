@@ -19,6 +19,8 @@ router.patch('/updateProfile', isAuth ,handleErrorAsync( userController.updatePr
 // change  user newPassword
 router.post('/updatePassword', isAuth ,handleErrorAsync( userController.updatePassword))
 
+router.get('/getLikeList', isAuth ,handleErrorAsync( userController.likeList))
+
 
 
 // retrieve all user from db

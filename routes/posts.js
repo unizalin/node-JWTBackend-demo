@@ -4,7 +4,6 @@ const postsController = require("../controllers/post.controller");
 const {isAuth} = require('../server/auth');
 const handleErrorAsync = require("../server/handleErrorAsync")
 
-
 // create and save a new post
 router.post("/addPost", isAuth , handleErrorAsync(postsController.create));
 
@@ -18,7 +17,7 @@ router.get("/getOnePost/:id", handleErrorAsync(postsController.findOne));
 router.post("/updateComment", handleErrorAsync(postsController.updateComment));
 
 // update a post by id
-router.patch("/updatePost/:id", isAuth , handleErrorAsync(postsController.update));
+router.patch("/updatePost/:id", isAuth , handleErrorAsync(postsController.updatePost));
 
 // delete a post by id
 router.delete("/deletePost/:id", isAuth , handleErrorAsync(postsController.delete));
@@ -27,5 +26,9 @@ router.delete("/deletePost/:id", isAuth , handleErrorAsync(postsController.delet
 router.delete("/deleteAllPosts", handleErrorAsync(postsController.deleteAll));
 
 
+// delete all posts
+router.post("/:id/likes/" , isAuth , handleErrorAsync(postsController.addLikes));
+
+router.delete("/:id/likes/", isAuth , handleErrorAsync(postsController.delLikes));
 
 module.exports = router;

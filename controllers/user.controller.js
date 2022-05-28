@@ -1,5 +1,6 @@
 const { successHandler, errorHandler } = require('../server/handle');
 const User = require('../models/user.model');
+const Post = require('../models/post.model')
 const handleErrorAsync = require("../server/handleErrorAsync")
 const appError = require("../server/appError")
 const validator = require('validator');
@@ -90,6 +91,19 @@ exports.updateProfile = async(req,res,next)=>{
   const resultUser = await User.findById(userId).exec()
   successHandler(res,'success',resultUser)
 };
+
+exports.likeList = async ( req ,res ,next)=>{
+  const likeList = await Post.find({
+    likes : { $in : [req.user.id]}
+  }).populate({
+    path : 'user',
+    select : 'name _id'
+  })
+  successHandler(res,'success',likeList)
+
+}
+
+
 
 exports.findAll = handleErrorAsync( async(req,res,next)=>{
     const allUser = await User.find()

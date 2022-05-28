@@ -58,7 +58,7 @@ exports.findOne =  async(req, res, next) => {
 
 
 // update a post by id
-exports.update =  async(req, res, next) => {
+exports.updatePost =  async(req, res, next) => {
     const postId = req.params.id
     const {userName,content,image,likes} = req.body 
     const data ={userName,content,image,likes}
@@ -107,4 +107,24 @@ exports.deleteAll =  async(req, res, next) => {
   successHandler(res,"全部資料已刪除")
 };
 
+exports.addLikes = async (req, res, next) =>{
+  const postId = req.params.id
+  const userId = req.user.id
+  await Post.findOneAndUpdate(
+    {postId},
+    { $addToSet: { likes: userId } }
+    )
+  successHandler(res,'success',{postId,userId })
+
+}
+
+exports.delLikes = async (req, res, next) =>{
+  const postId = req.params.id
+  const userId = req.user.id
+  await Post.findOneAndUpdate(
+    {postId},
+    { $pull: { likes: userId } }
+    )
+  successHandler(res,'success',{postId,userId })
+}
 
