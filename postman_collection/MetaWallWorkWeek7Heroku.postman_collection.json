@@ -30,7 +30,22 @@
 			"name": "新增文章",
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{herokuW7JWT}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": \"62926d35a47800bdc9c93f4b\",\n    \"content\": \"New user post Two\",\n    \"image\": \"\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
 					"raw": "https://fierce-meadow-16484.herokuapp.com/posts/addPost",
 					"protocol": "https",
@@ -207,6 +222,43 @@
 					"path": [
 						"users",
 						"updateProfile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "上傳圖片",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{herokuW7JWT}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/Users/unizalin/clickHome/click108/fe/revision/images/dayfortune/icon-pen.png"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://fierce-meadow-16484.herokuapp.com/upload/",
+					"protocol": "https",
+					"host": [
+						"fierce-meadow-16484",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"upload",
+						""
 					]
 				}
 			},
