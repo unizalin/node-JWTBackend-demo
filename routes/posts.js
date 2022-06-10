@@ -13,8 +13,8 @@ router.get("/getAllPosts", isAuth ,handleErrorAsync( postsController.findAll) );
 // find a single post by id
 router.get("/getOnePost/:id", handleErrorAsync(postsController.findOne));
 
-// updateComment 
-router.post("/updateComment", handleErrorAsync(postsController.updateComment));
+// user  create comment to pos by user id
+router.post("/:id/comment", isAuth , handleErrorAsync(postsController.updateComment));
 
 // update a post by id
 router.patch("/updatePost/:id", isAuth , handleErrorAsync(postsController.updatePost));
@@ -30,5 +30,10 @@ router.delete("/deleteAllPosts", handleErrorAsync(postsController.deleteAll));
 router.post("/:id/likes/" , isAuth , handleErrorAsync(postsController.addLikes));
 
 router.delete("/:id/likes/", isAuth , handleErrorAsync(postsController.delLikes));
+
+
+router.post("/:id/follow" , isAuth , handleErrorAsync(postsController.addFollower));
+
+router.delete("/:id/unfollow", isAuth , handleErrorAsync(postsController.delFollower));
 
 module.exports = router;

@@ -1,6 +1,6 @@
-const { successHandler, errorHandler } = require('../server/handle');
-const User = require('../models/user.model');
-const Post = require('../models/post.model')
+const { successHandler } = require('../server/handle');
+const User = require('../models/users.model');
+const Post = require('../models/posts.model')
 const handleErrorAsync = require("../server/handleErrorAsync")
 const appError = require("../server/appError")
 const validator = require('validator');
@@ -10,8 +10,11 @@ const {generateSendJWT} = require('../server/auth');
 
 // ㄓ
 exports.signUp = async(req,res,next)=>{
-  const {email,password,confirmPassword,name} = req.body
-  const data = {email,password,confirmPassword,name}
+  const { email,password,confirmPassword,name} = req.body
+  const data = { email,password,confirmPassword,name}
+  
+
+
   
   if(!data.email|| !data.password || !data.confirmPassword || !data.name){
     return next(appError(400,"欄位為正確填寫",next))
