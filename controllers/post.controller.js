@@ -1,30 +1,28 @@
-const Post = require("../models/post.model"); // model Post
-const User = require("../models/user.model")
-const { successHandler, errorHandler } =require('../server/handle')
+const Post = require("../models/posts.model"); // model Post
+const User = require("../models/users.model")
+const Comment = require("../models/comments.model")
+const { successHandler } =require('../server/handle')
 const appError = require("../server/appError")
 
 // create and save a new post
 exports.create = async (req, res,next) => {
-    const { userId, content, image, likes ,tags} = req.body;
-    let dataPost = {
-      user: userId,
-      tags,
-      type: req.body.type || "person",
-      image,
-      content,
-      likes,
-    };
-    const user = await User.findById(dataPost.user).exec();
+    const { content , imgUrl} = req.body;
+    const userId = req.user.id
+
+    const user = await User.findById(userId).exec();
     if(!user){
       return next(appError(400,"查無此ID，無法發文",next))
     }
-    if (!dataPost.content) {
+    if (!content) {
       return next(appError(400,"內容不能為空",next))
     }
 
-    const newPost = await Post.create(dataPost);
-    let payload = { postId: newPost };
-    successHandler(res, 'success', payload);
+    const newPost = await Post.create({
+      user: userId,
+      content,
+      image : imgUrl
+    });    
+    successHandler(res, 'success', newPost);
 };
 
 // retrieve all posts from db
@@ -32,14 +30,15 @@ exports.findAll =  async(req, res , next) => {
     
     const timeSort = req.query.timeSort === 'asc' ? 'createdAt' : '-createdAt'
     const q = req.query.keyword !== undefined ? { content: new RegExp(req.query.keyword) } : {}
-    const allPost = await Post.find(q).populate({path:'user',select: 'name photo'}).sort(timeSort)
+    const allPost = await Post.find(q).populate({
+      path: 'user',
+      select: 'name photo '
+    }).populate({
+      path: 'comments',
+      select: 'comment user'
+    }).sort(timeSort);
   
-    if (allPost) {
-      successHandler(res,'success',allPost)
-    } else {
-      errorHandler(res, error)
-    }
-  
+    successHandler(res,'success',allPost)
 };
 
 // find a single post by id
@@ -58,7 +57,7 @@ exports.findOne =  async(req, res, next) => {
 
 
 // update a post by id
-exports.update =  async(req, res, next) => {
+exports.updatePost =  async(req, res, next) => {
     const postId = req.params.id
     const {userName,content,image,likes} = req.body 
     const data ={userName,content,image,likes}
@@ -76,28 +75,35 @@ exports.update =  async(req, res, next) => {
 
 //  add a comment by postId userId
 exports.updateComment =  async (req, res , next ) => {
-  const { postId,userId,comment} = req.body
-  let data ={postId,userId,comment}
-  const userInfo = await User.findById(data.userId).exec()
+  const userId = req.user.id
+  const postId = req.params.id
+  const {comment} = req.body
+  const userInfo = await User.findById(userId).exec()
   if(!userInfo){
     return next(appError(400,"無此發文者ID",next))
   }
-  if(!data.comment){
+
+  if(!comment){
     return next(appError(400,"無填寫留言",next))
   }
-  const postDataComments = {userName:userInfo.name,userPhoto:userInfo.photo,message:comment}
-  await Post.findOneAndUpdate({id:data.postId},{ $push: { comments: postDataComments  } });
-  const result = await Post.findById(data.postId).exec()
-  successHandler(res,'success',result)
+
+  const newComment = await Comment.create({
+    post : postId,
+    user : userId,
+    comment
+  })
+  successHandler(res,'success',{comments: newComment}
+  )
 };
 
 // delete a post by id
 exports.delete = async( req, res, next) => {
     const postId = req.params.id
-    const deletePost = await Post.findByIdAndDelete(postId)
-    if(!deletePost){
+    const postUserId = await Post.findById(postId).exec()
+    if(!postUserId){
       return next(appError(400,"刪除失敗，無此ID",next))
     }
+    await Post.findByIdAndDelete(postId)
     successHandler(res,"刪除成功")
 };
 
@@ -107,4 +113,77 @@ exports.deleteAll =  async(req, res, next) => {
   successHandler(res,"全部資料已刪除")
 };
 
+exports.addLikes = async (req, res, next) =>{
+  const postId = req.params.id
+  const userId = req.user.id
+  await Post.findOneAndUpdate(
+    {postId},
+    { $addToSet: { likes: userId } }
+    )
+  successHandler(res,'success',{postId,userId })
+
+}
+
+exports.delLikes = async (req, res, next) =>{
+  const postId = req.params.id
+  const userId = req.user.id
+  await Post.findOneAndUpdate(
+    {postId},
+    { $pull: { likes: userId } }
+    )
+  successHandler(res,'success',{postId,userId })
+}
+
+exports.addFollower = async (req, res, next) =>{
+
+  
+  const followedId = req.params.id
+  const userId = req.user.id
+
+  if(followedId===userId){
+    return next(appError(401,"您無法追蹤自己",next))
+  }
+
+  await User.updateOne(
+    {
+      _id : userId,
+      'following.user' : { $ne : followedId}
+    },
+    { $addToSet: { following: {user:userId} } }
+  )
+
+  await User.updateOne(
+    {
+      _id : userId,
+      'followers.user' : { $ne : userId }
+    },
+    { $addToSet: { followers: { user:userId } } }
+  )
+  successHandler(res,'success','您已成功追蹤')
+
+}
+
+exports.delFollower = async (req, res, next) =>{
+  const followedId = req.params.id
+  const userId = req.user.id
+
+  if(followedId===userId){
+    return next(appError(401,"您無法取消追蹤自己",next))
+  }
+
+  await User.updateOne(
+    {
+      _id : userId,
+    },
+    { $pull: { following: {user:userId} } }
+  )
+
+  await User.updateOne(
+    {
+      _id : userId,
+    },
+    { $pull: { followers: { user:userId } } }
+  )
+  successHandler(res,'success','您已取消追蹤')
+}
 

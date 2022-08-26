@@ -1,5 +1,6 @@
-const { successHandler, errorHandler } = require('../server/handle');
-const User = require('../models/user.model');
+const { successHandler } = require('../server/handle');
+const User = require('../models/users.model');
+const Post = require('../models/posts.model')
 const handleErrorAsync = require("../server/handleErrorAsync")
 const appError = require("../server/appError")
 const validator = require('validator');
@@ -9,8 +10,11 @@ const {generateSendJWT} = require('../server/auth');
 
 // ㄓ
 exports.signUp = async(req,res,next)=>{
-  const {email,password,confirmPassword,name} = req.body
-  const data = {email,password,confirmPassword,name}
+  const { email,password,confirmPassword,name} = req.body
+  const data = { email,password,confirmPassword,name}
+  
+
+
   
   if(!data.email|| !data.password || !data.confirmPassword || !data.name){
     return next(appError(400,"欄位為正確填寫",next))
@@ -90,6 +94,19 @@ exports.updateProfile = async(req,res,next)=>{
   const resultUser = await User.findById(userId).exec()
   successHandler(res,'success',resultUser)
 };
+
+exports.likeList = async ( req ,res ,next)=>{
+  const likeList = await Post.find({
+    likes : { $in : [req.user.id]}
+  }).populate({
+    path : 'user',
+    select : 'name _id'
+  })
+  successHandler(res,'success',likeList)
+
+}
+
+
 
 exports.findAll = handleErrorAsync( async(req,res,next)=>{
     const allUser = await User.find()
