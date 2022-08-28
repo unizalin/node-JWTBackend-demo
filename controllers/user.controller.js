@@ -1,5 +1,5 @@
 const { successHandler, errorHandler } = require('../server/handle');
-const User = require('../models/user.model');
+const User = require('../models/users.model');
 const handleErrorAsync = require("../server/handleErrorAsync")
 const appError = require("../server/appError")
 const validator = require('validator');
@@ -11,7 +11,7 @@ const {generateSendJWT} = require('../server/auth');
 exports.signUp = async(req,res,next)=>{
   const {email,password,confirmPassword,name} = req.body
   const data = {email,password,confirmPassword,name}
-  
+  console.log(data)
   if(!data.email|| !data.password || !data.confirmPassword || !data.name){
     return next(appError(400,"欄位為正確填寫",next))
   }
@@ -37,7 +37,9 @@ exports.signUp = async(req,res,next)=>{
 
 // login
 exports.signIn = async(req,res,next)=>{
+  console.log('sing', req.bodyj)
   const {email,password} = req.body
+
   const data = {email,password}
   
   if(!data.email|| !data.password ){
@@ -74,6 +76,7 @@ exports.updateProfile = async(req,res,next)=>{
   
   const {name,sex,photo} = req.body
   const data = {name,sex,photo}
+  console.log(data)
   const userId = req.user.id
   const user = await User.findById(userId).exec();
   if(!user){
