@@ -22,19 +22,19 @@ router.post('/updatePassword', isAuth ,handleErrorAsync( userController.updatePa
 
 
 // retrieve all user from db
-router.get('/allUser', userController.findAll);
+router.get('/allUser', isAuth, userController.findAll);
 
 // find a single user by id
-router.post('/getUserInfo/:id' , userController.findOne)
+router.post('/getUserInfo/:id', isAuth, userController.findOne)
 
 // update user by id
-router.patch("/updateUser/:id", userController.updateUser);
+router.patch("/updateUser/:id", isAuth, userController.updateUser);
 
 // delete a user by id
-router.delete("/deleteUser/:id", userController.deleteOne);
+router.delete("/deleteUser/:id", isAuth, userController.deleteOne);
 
 // delete all user
-router.delete("/deleteAllUsers", userController.deleteAll);
+router.delete("/deleteAllUsers", isAuth, userController.deleteAll);
 
 
 
