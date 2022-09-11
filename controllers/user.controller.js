@@ -1,13 +1,14 @@
 const { successHandler, errorHandler } = require('../server/handle');
-const User = require('../models/users.model');
 const handleErrorAsync = require("../server/handleErrorAsync")
+const User = require('../models/users.model');
+const Post = require("../models/posts.model");
 const appError = require("../server/appError")
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const {generateSendJWT} = require('../server/auth');
 
-// ㄓ
+// sign up 註冊
 exports.signUp = async(req,res,next)=>{
   const {email,password,confirmPassword,name} = req.body
   const data = {email,password,confirmPassword,name}
@@ -35,7 +36,7 @@ exports.signUp = async(req,res,next)=>{
 }
 
 
-// login
+// login 登入
 exports.signIn = async(req,res,next)=>{
   console.log('sing', req.bodyj)
   const {email,password} = req.body
@@ -56,10 +57,6 @@ exports.signIn = async(req,res,next)=>{
   generateSendJWT(user,201,res);
 }
 
-
-exports.profile = async (req,res,next)=>{
-  successHandler(res,'success',req.user)
-}
 
 exports.updatePassword = async (req,res,next)=>{
   const {password,confirmPassword}= req.body
@@ -140,3 +137,75 @@ exports.updateUser = handleErrorAsync(async(req,res,next)=>{
   const resultUser =await User.findById(userId).exec();
   successHandler(res,'success',resultUser)
 })
+
+exports.getLikeList = async (req,res,next) => {
+  const userId = req.user.id
+  const likeList = await Post.find({
+    likes: { $in: [userId] }
+  }).populate({
+    path: 'user',
+    select: 'name _id'
+  });
+  successHandler(res, 200, likeList);
+}
+
+exports.addFollower = async (req, res, next) =>{
+  
+  const followedId = req.params.id
+  const userId = req.user.id
+
+  if(followedId===userId){
+    return next(appError(401,"您無法追蹤自己",next))
+  }
+
+  await User.updateOne(
+    {
+      _id : userId,
+      'following.user' : { $ne : followedId}
+    },
+    { $addToSet: { following: {user:followedId} } }
+  )
+
+  await User.updateOne(
+    {
+      _id : followedId,
+      'followers.user' : { $ne : userId }
+    },
+    { $addToSet: { followers: { user:userId } } }
+  )
+  successHandler(res,'success','您已成功追蹤')
+
+}
+
+exports.delFollower = async (req, res, next) =>{
+  const followedId = req.params.id
+  const userId = req.user.id
+
+  if(followedId===userId){
+    return next(appError(401,"您無法取消追蹤自己",next))
+  }
+
+  await User.updateOne(
+    {
+      _id : userId,
+    },
+    { $pull: { following: {user:followedId} } }
+  )
+
+  await User.updateOne(
+    {
+      _id : followedId,
+    },
+    { $pull: { followers: { user:userId } } }
+  )
+  successHandler(res,'success','您已取消追蹤')
+}
+
+exports.allFollowers = async (req, res, next) => {
+  const id = { _id: req.user.id };
+  const follower = await User.find(id).populate({
+    path: 'following.user',
+    select: 'name photo',
+  });
+  successHandler(res,'success', follower);
+}

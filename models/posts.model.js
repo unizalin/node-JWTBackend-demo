@@ -16,7 +16,7 @@ const postSchema = new mongoose.Schema(
       },
       user: {
           type: mongoose.Schema.ObjectId,
-          ref:"user",
+          ref:"User",
           required: [true, '貼文 ID 未填寫']
       },
       likes: [

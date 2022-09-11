@@ -32,8 +32,4 @@ router.post("/:id/likes/" , isAuth , handleErrorAsync(postsController.addLikes))
 router.delete("/:id/likes/", isAuth , handleErrorAsync(postsController.delLikes));
 
 
-router.post("/:id/follow" , isAuth , handleErrorAsync(postsController.addFollower));
-
-router.delete("/:id/unfollow", isAuth , handleErrorAsync(postsController.delFollower));
-
 module.exports = router;                            

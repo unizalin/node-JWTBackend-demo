@@ -1,4 +1,4 @@
-const Post = require("../models/posts.model"); // model Post
+const Post = require("../models/posts.model");
 const User = require("../models/users.model")
 const Comment = require("../models/comments.model")
 const { successHandler } =require('../server/handle')
@@ -30,6 +30,7 @@ exports.findAll =  async(req, res , next) => {
     
     const timeSort = req.query.timeSort === 'asc' ? 'createdAt' : '-createdAt'
     const q = req.query.keyword !== undefined ? { content: new RegExp(req.query.keyword) } : {}
+    // const allPost = await Post.find(q)
     const allPost = await Post.find(q).populate({
       path: 'user',
       select: 'name photo '
@@ -117,15 +118,14 @@ exports.deleteAll =  async(req, res, next) => {
 exports.addLikes = async (req, res, next) =>{
   const postId = req.params.id
   const userId = req.user.id
-  console.log(postId,userId)
   const test = await Post.updateOne(
     {postId},
-    { $addToSet: { likes: userId } }
+    { $addToSet: { likes: userId } },
+    { new: true }
   )
   // const ww = await Post.updateOne({postId},)
   const resultPost = await Post.findById(postId).exec()
   // const allPost = await Post.find()
-  console.log(test, resultPost)
   successHandler(res,'success',{postId,userId })
 
 }
@@ -140,55 +140,4 @@ exports.delLikes = async (req, res, next) =>{
   successHandler(res,'success',{postId,userId })
 }
 
-exports.addFollower = async (req, res, next) =>{
-  
-  const followedId = req.params.id
-  const userId = req.user.id
-
-  if(followedId===userId){
-    return next(appError(401,"您無法追蹤自己",next))
-  }
-
-  await User.updateOne(
-    {
-      _id : userId,
-      'following.user' : { $ne : followedId}
-    },
-    { $addToSet: { following: {user:userId} } }
-  )
-
-  await User.updateOne(
-    {
-      _id : userId,
-      'followers.user' : { $ne : userId }
-    },
-    { $addToSet: { followers: { user:userId } } }
-  )
-  successHandler(res,'success','您已成功追蹤')
-
-}
-
-exports.delFollower = async (req, res, next) =>{
-  const followedId = req.params.id
-  const userId = req.user.id
-
-  if(followedId===userId){
-    return next(appError(401,"您無法取消追蹤自己",next))
-  }
-
-  await User.updateOne(
-    {
-      _id : userId,
-    },
-    { $pull: { following: {user:userId} } }
-  )
-
-  await User.updateOne(
-    {
-      _id : userId,
-    },
-    { $pull: { followers: { user:userId } } }
-  )
-  successHandler(res,'success','您已取消追蹤')
-}
 

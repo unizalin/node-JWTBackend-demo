@@ -36,4 +36,14 @@ router.delete("/deleteUser/:id", userController.deleteOne);
 // delete all user
 router.delete("/deleteAllUsers", userController.deleteAll);
 
+
+
+router.get("/getLikeList/", isAuth , handleErrorAsync(userController.getLikeList));
+
+router.post("/:id/follow" , isAuth , handleErrorAsync(userController.addFollower));
+
+router.delete("/:id/unfollow", isAuth , handleErrorAsync(userController.delFollower));
+
+router.get('/allFollowers', isAuth, handleErrorAsync(userController.allFollowers))
+
 module.exports = router;
