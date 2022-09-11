@@ -57,6 +57,9 @@ exports.signIn = async(req,res,next)=>{
   generateSendJWT(user,201,res);
 }
 
+exports.profile = async (req,res,next)=>{
+  successHandler(res,'success',req.user)
+}
 
 exports.updatePassword = async (req,res,next)=>{
   const {password,confirmPassword}= req.body
