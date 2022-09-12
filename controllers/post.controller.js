@@ -27,19 +27,24 @@ exports.create = async (req, res,next) => {
 
 // retrieve all posts from db
 exports.findAll =  async(req, res , next) => {
-    
+    const id = req.params.id
     const timeSort = req.query.timeSort === 'asc' ? 'createdAt' : '-createdAt'
     const q = req.query.keyword !== undefined ? { content: new RegExp(req.query.keyword) } : {}
-    // const allPost = await Post.find(q)
-    const allPost = await Post.find(q).populate({
-      path: 'user',
-      select: 'name photo '
-    }).populate({
-      path: 'comments',
-      select: 'comment user'
-    }).sort(timeSort);
-  
-    successHandler(res,'success',allPost)
+    if(id){
+      let allPost = await Post.find({user:{_id:id}})
+      successHandler(res,'success',allPost)
+    }else{
+       let allPost = await Post.find(q).populate({
+        path: 'user',
+        select: 'name photo '
+      }).populate({
+        path: 'comments',
+        select: 'comment user'
+      }).sort(timeSort);
+      successHandler(res,'success',allPost)
+    
+    }
+
 };
 
 // find a single post by id

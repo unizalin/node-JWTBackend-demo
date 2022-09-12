@@ -10,6 +10,8 @@ router.post("/addPost", isAuth , handleErrorAsync(postsController.create));
 // retrieve all posts from db
 router.get("/getAllPosts", isAuth ,handleErrorAsync( postsController.findAll) );
 
+router.get("/getAllPosts/:id", isAuth ,handleErrorAsync( postsController.findAll) );
+
 // find a single post by id
 router.get("/getOnePost/:id", handleErrorAsync(postsController.findOne));
 
