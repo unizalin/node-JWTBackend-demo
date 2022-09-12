@@ -207,7 +207,7 @@ exports.delFollower = async (req, res, next) =>{
 exports.allFollowers = async (req, res, next) => {
   const id = { _id: req.user.id };
   const follower = await User.find(id).populate({
-    path: 'following.user',
+    path: 'followers.user',
     select: 'name photo',
   });
   successHandler(res,'success', follower);
