@@ -36,7 +36,7 @@ exports.findAll =  async(req, res , next) => {
         select: 'name photo '
       }).populate({
         path: 'comments',
-        select: 'comment user photo'
+        select: 'comment user'
       }).sort(timeSort);
       successHandler(res,'success',allPost)
     }else{
