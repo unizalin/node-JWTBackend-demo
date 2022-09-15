@@ -46,4 +46,7 @@ router.delete("/:id/unfollow", isAuth , handleErrorAsync(userController.delFollo
 
 router.get('/allFollowers', isAuth, handleErrorAsync(userController.allFollowers))
 
+router.get('/getFollowing', isAuth, handleErrorAsync(userController.getFollowing))
+
+
 module.exports = router;

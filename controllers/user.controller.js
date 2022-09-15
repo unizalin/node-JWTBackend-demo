@@ -77,7 +77,6 @@ exports.updateProfile = async(req,res,next)=>{
   
   const {name,sex,photo} = req.body
   const data = {name,sex,photo}
-  console.log(data)
   const userId = req.user.id
   const user = await User.findById(userId).exec();
   if(!user){
@@ -233,4 +232,19 @@ exports.allFollowers = async (req, res, next) => {
     select: 'name photo',
   });
   successHandler(res,'success', follower);
+}
+
+exports.getFollowing = async (req, res, next) => {
+  const id = { _id: req.user.id };
+  const findUser = await User.findById(id)
+  .populate({
+    path: 'following',
+    populate: { 
+        path: 'user',
+        select: 'name photo'
+    },
+    options: { sort: '-createdAt' }
+  });
+  successHandler(res,'success', findUser);
+
 }
