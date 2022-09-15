@@ -4,6 +4,7 @@ const User = require('../models/users.model');
 const Post = require("../models/posts.model");
 const appError = require("../server/appError")
 const validator = require('validator');
+const checkMongoObjectId = require('../server/checkMongoObjectId');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const {generateSendJWT} = require('../server/auth');
@@ -157,9 +158,18 @@ exports.addFollower = async (req, res, next) =>{
   const followedId = req.params.id
   const userId = req.user.id
 
+  if(!checkMongoObjectId(followedId)) {
+    return next(appError(401,"新增失敗，請輸入正確的ID格式",next))
+  }
+  const findUser = await User.findById(followedId);
+  if(!findUser){
+    return next(appError(401,"新增失敗，查無此使用者ID",next))
+  }
+
   if(followedId===userId){
     return next(appError(401,"您無法追蹤自己",next))
   }
+
 
   await User.updateOne(
     {
@@ -184,23 +194,35 @@ exports.delFollower = async (req, res, next) =>{
   const followedId = req.params.id
   const userId = req.user.id
 
+  if(!checkMongoObjectId(followedId)) {
+    return next(appError(401,"刪除失敗，請輸入正確的ID格式",next))
+  }
+  const findUser = await User.findById(followedId);
+  if(!findUser){
+    return next(appError(401,"刪除失敗，查無此使用者ID",next))
+  }
   if(followedId===userId){
     return next(appError(401,"您無法取消追蹤自己",next))
   }
-
   await User.updateOne(
     {
-      _id : userId,
+      _id: userId,
+      'following.user': { $eq: followedId }
     },
-    { $pull: { following: {user:followedId} } }
-  )
-
+    {
+      $pull: { following: { user: followedId } }
+    }
+  );
   await User.updateOne(
     {
-      _id : followedId,
+      _id: followedId,
+      'followers.user': { $eq: userId }
     },
-    { $pull: { followers: { user:userId } } }
-  )
+    {
+      $pull: { followers: { user: userId } }
+    }
+  );
+
   successHandler(res,'success','您已取消追蹤')
 }
 

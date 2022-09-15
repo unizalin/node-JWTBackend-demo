@@ -49,7 +49,10 @@ const userSchema = new mongoose.Schema({
           default: Date.now
         }
       }
-    ]
+    ],
+  },
+  {
+    versionKey: false,
   });
 // User
 const User = mongoose.model('User', userSchema);
