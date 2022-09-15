@@ -33,7 +33,10 @@ exports.signUp = async(req,res,next)=>{
 
   const findUserByMail = await User.findOne({ email });
   if (findUserByMail) {
-    return next(appError(400, 'Email 已註冊', next));
+    errorHandler(res,'Email 已註冊')
+
+    return 
+
   }
 
   data.password = await bcrypt.hash(data.password,12)
