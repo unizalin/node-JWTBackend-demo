@@ -3,6 +3,8 @@ const User = require("../models/users.model")
 const Comment = require("../models/comments.model")
 const { successHandler } =require('../server/handle')
 const appError = require("../server/appError")
+const checkMongoObjectId = require('../server/checkMongoObjectId');
+
 
 // create and save a new post
 exports.create = async (req, res,next) => {
@@ -129,26 +131,38 @@ exports.deleteAll =  async(req, res, next) => {
 exports.addLikes = async (req, res, next) =>{
   const postId = req.params.id
   const userId = req.user.id
-  const test = await Post.updateOne(
-    {postId},
-    { $addToSet: { likes: userId } },
-    { new: true }
-  )
-  // const ww = await Post.updateOne({postId},)
-  const resultPost = await Post.findById(postId).exec()
-  // const allPost = await Post.find()
-  successHandler(res,'success',{postId,userId })
+  if(!checkMongoObjectId(postId)) {
+    return appError(400, '新增失敗，請輸入正確的ID格式', next);
+  }
+  const post = await Post.findByIdAndUpdate(
+    postId,
+      { $addToSet: { likes: userId } },
+      { new: true }
+    );
+  // 查不到貼文id
+  if(!post) {
+    return appError(400, '新增失敗，無此貼文ID或格式填寫錯誤', next);
+  }
+  successHandler(res,'success',post)
 
 }
 
 exports.delLikes = async (req, res, next) =>{
   const postId = req.params.id
   const userId = req.user.id
-  await Post.findOneAndUpdate(
-    {postId},
-    { $pull: { likes: userId } }
-    )
-  successHandler(res,'success',{postId,userId })
+  if(!checkMongoObjectId(postId)) {
+    return appError(400, '刪除失敗，請輸入正確的ID格式', next);
+  }
+  const post = await Post.findByIdAndUpdate(
+    postId,
+      { $pull: { likes: userId } },
+      { new: true }
+    );
+  // 查不到貼文id
+  if(!post) {
+    return appError(400, '刪除失敗，無此貼文ID或格式填寫錯誤', next);
+  }
+  successHandler(res,'success',post)
 }
 
 
