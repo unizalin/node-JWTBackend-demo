@@ -11,12 +11,12 @@ const {generateSendJWT} = require('../server/auth');
 
 // sign up 註冊
 exports.signUp = async(req,res,next)=>{
-  const {email,password,confirmPassword,name} = req.body
-  const data = {email,password,confirmPassword,name}
-  console.log(data)
+  const {email,password,confirmPassword,name,sex,photo} = req.body
+  const data = {email,password,confirmPassword,name,sex,photo}
   if(!data.email|| !data.password || !data.confirmPassword || !data.name){
     return next(appError(400,"欄位為正確填寫",next))
   }
+
   if(data.name.trim().length<=2){
     return next(appError(400,"暱稱至少 2 個字元以上",next))
   }
@@ -30,6 +30,12 @@ exports.signUp = async(req,res,next)=>{
   if(!validator.isEmail(data.email)){
     return next(appError(400,"信箱格式錯誤",next))
   }
+
+  const findUserByMail = await User.findOne({ email });
+  if (findUserByMail) {
+    return next(appError(400, 'Email 已註冊', next));
+  }
+
   data.password = await bcrypt.hash(data.password,12)
 
   const newUser = await User.create(data)
