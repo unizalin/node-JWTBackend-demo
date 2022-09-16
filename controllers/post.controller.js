@@ -33,7 +33,7 @@ exports.findAll =  async(req, res , next) => {
     const timeSort = req.query.timeSort === 'asc' ? 'createdAt' : '-createdAt'
     const q = req.query.keyword !== undefined ? { content: new RegExp(req.query.keyword) } : {}
     if(id){
-      let allPost = await Post.find({user:{_id:id}}).populate({
+      let allPost = await Post.find({user:{_id:id}}).find(q).populate({
         path: 'user',
         select: 'name photo '
       }).populate({
