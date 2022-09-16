@@ -250,7 +250,7 @@ exports.getFollowing = async (req, res, next) => {
     path: 'following',
     populate: { 
         path: 'user',
-        select: 'name photo'
+        select: 'name photo createdAt'
     },
     options: { sort: '-createdAt' }
   });
