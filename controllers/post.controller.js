@@ -58,7 +58,13 @@ exports.findAll =  async(req, res , next) => {
 // find a single post by id
 exports.findOne =  async(req, res, next) => {
     const postId = req.params.id
-    const postItem = await Post.findById(postId).exec()
+    const postItem = await Post.findById(postId).populate({
+      path: 'user',
+      select: 'name photo '
+    }).populate({
+      path: 'comments',
+      select: 'comment user'
+    })
     if(!postItem){
       return next(appError(400,"無此ID貼文",next))
     }
