@@ -48,7 +48,6 @@ exports.signUp = async(req,res,next)=>{
 
 // login 登入
 exports.signIn = async(req,res,next)=>{
-  console.log('sing', req.bodyj)
   const {email,password} = req.body
 
   const data = {email,password}

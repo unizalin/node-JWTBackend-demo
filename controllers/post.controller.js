@@ -35,7 +35,7 @@ exports.findAll =  async(req, res , next) => {
     if(id){
       let allPost = await Post.find({user:{_id:id}}).find(q).populate({
         path: 'user',
-        select: 'name photo '
+        select: 'name photo sex'
       }).populate({
         path: 'comments',
         select: 'comment user'
@@ -44,7 +44,7 @@ exports.findAll =  async(req, res , next) => {
     }else{
        let allPost = await Post.find(q).populate({
         path: 'user',
-        select: 'name photo '
+        select: 'name photo sex'
       }).populate({
         path: 'comments',
         select: 'comment user'
@@ -80,7 +80,6 @@ exports.findOne =  async(req, res, next) => {
 exports.updatePost =  async(req, res, next) => {
     const postId = req.params.id
     const {userName,content,image,likes} = req.body 
-    console.log(req.body)
     const data ={userName,content,image,likes}
     if(!data.content){
       return next(appError(400,"內容不能為空",next))
